@@ -80,7 +80,7 @@ export const getArticleBySlug = async (req: Request, res: Response) => {
 
 // Create a new article
 export const createArticle = async (req: Request, res: Response) => {
-  const { title, slug, short_description, author, thumbnail_img, content, published } = req.body;
+  const { title, slug, short_description, author, thumbnail_img, content, published_at } = req.body;
   try {
     const newArticle = await prisma.articles.create({
       data: {
@@ -90,7 +90,7 @@ export const createArticle = async (req: Request, res: Response) => {
         author,
         thumbnail_img,
         content,
-        published: published ?? false,
+        published_at: published_at,
       },
     });
     sendResponse(res, true, newArticle, 'Article created successfully', 201);
@@ -103,7 +103,7 @@ export const createArticle = async (req: Request, res: Response) => {
 // Update an existing article
 export const updateArticle = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { title, slug, short_description, author, thumbnail_img, content, published } = req.body;
+  const { title, slug, short_description, author, thumbnail_img, content, published_at } = req.body;
   try {
     const updatedArticle = await prisma.articles.update({
       where: { id: Number(id) },
@@ -114,7 +114,7 @@ export const updateArticle = async (req: Request, res: Response) => {
         author,
         thumbnail_img,
         content,
-        published,
+        published_at,
       },
     });
     sendResponse(res, true, updatedArticle, 'Article updated successfully');

@@ -21,5 +21,5 @@ model articles {
   author            String
   thumbnail_img     String
   content           String  @db.LongText
-  published         Boolean @default(false)
+  published_at      DateTime
 }
