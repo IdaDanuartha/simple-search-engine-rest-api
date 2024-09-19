@@ -14,11 +14,12 @@ datasource db {
 }
 
 model articles {
-  id                Int     @id @default(autoincrement())
-  title             String
-  short_description String
+  id                Int    @id @default(autoincrement())
+  title             String @unique
+  slug              String @unique
+  short_description String @db.Text
   author            String
   thumbnail_img     String
-  content           String
+  content           String  @db.LongText
   published         Boolean @default(false)
 }

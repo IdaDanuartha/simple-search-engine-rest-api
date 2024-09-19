@@ -21,7 +21,7 @@ export const getArticles = async (req: Request, res: Response) => {
       tf_idf.createCorpusFromStringArray([]);
 
       // Reinitialize TF-IDF with article content
-      const articleContents = articles.map((article) => article.content);
+      const articleContents = articles.map((article) => `${article.title} - ${article.author} - ${article.content}`);
       tf_idf.createCorpusFromStringArray(articleContents);
 
       // Rank articles by query
@@ -63,13 +63,29 @@ export const getArticleById = async (req: Request, res: Response) => {
   }
 };
 
+// Get an article by Slug
+export const getArticleBySlug = async (req: Request, res: Response) => {
+  const { slug } = req.params;
+  try {
+    const article = await prisma.articles.findUnique({ where: { slug } });
+    if (!article) {
+      return sendResponse(res, false, null, 'Article not found', 404);
+    }
+    sendResponse(res, true, article, 'Article fetched successfully');
+  } catch (error) {
+    console.error('Error fetching article:', error);
+    sendResponse(res, false, null, 'Failed to fetch article', 500);
+  }
+};
+
 // Create a new article
 export const createArticle = async (req: Request, res: Response) => {
-  const { title, short_description, author, thumbnail_img, content, published } = req.body;
+  const { title, slug, short_description, author, thumbnail_img, content, published } = req.body;
   try {
     const newArticle = await prisma.articles.create({
       data: {
         title,
+        slug,
         short_description,
         author,
         thumbnail_img,
@@ -87,12 +103,13 @@ export const createArticle = async (req: Request, res: Response) => {
 // Update an existing article
 export const updateArticle = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { title, short_description, author, thumbnail_img, content, published } = req.body;
+  const { title, slug, short_description, author, thumbnail_img, content, published } = req.body;
   try {
     const updatedArticle = await prisma.articles.update({
       where: { id: Number(id) },
       data: {
         title,
+        slug,
         short_description,
         author,
         thumbnail_img,
