@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { sendResponse } from '../helpers/response.helper';
 import TfIdf from 'tf-idf-search';
 import natural from 'natural';
+import { removeStopwords, ind } from 'stopword'
 
 // Initialize the TfIdf instance
 const tf_idf = new TfIdf();
@@ -12,10 +13,12 @@ const prisma = new PrismaClient();
 
 // Get all articles with optional TF-IDF search
 export const getArticles = async (req: Request, res: Response) => {
-  const querySplit = (req.query.query as string).split(" ");
+  const queryInit = (req.query.query as string)
+  const querySplit = queryInit.replace(/[^\w\s]/gi, '').split(" ");
+  const queryStopWord = removeStopwords(querySplit, ind)
   let queryStemmer: Array<string> = [] 
-  
-  querySplit.forEach(q => {
+
+  queryStopWord.forEach(q => {
     queryStemmer.push(natural.StemmerId.stem(q))
   })
 
@@ -24,9 +27,11 @@ export const getArticles = async (req: Request, res: Response) => {
   try {
     const articles = await prisma.articles.findMany();
 
-    console.log(querySplit)
-    console.log(queryStemmer)
-    console.log(query)
+    console.log(`Initial : [${queryInit}]`)
+    console.log(`Tokenisasi : [${querySplit}]`)
+    console.log(`Filtering : [${queryStopWord}]`)
+    console.log(`Stemming : [${queryStemmer}]`)
+    console.log(`Final : ${query}`)
     if (query) {
       // Ensure to clear the existing corpus
       tf_idf.createCorpusFromStringArray([]);
